@@ -31,7 +31,7 @@ To use the GUI translator, run the following command:
 2. Click the "Translate" button.
 3. The translated text will be displayed in Vietnamese.
 
-## Example
+## Screenshot
 
 ![GUI Translator Screenshot](screenshot.png)
 
