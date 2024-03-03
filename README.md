@@ -36,7 +36,7 @@ To use the GUI translator, run the following command:
 
 ## Other Usage
 
-1. After "Translate from clipboard", you can click the "Quick Translate" button to translate the Chinese text after editing, this function only takes effect after using "Translate from clipboard", it helps Speed up the editing and translation process.
+1. After "Translate from clipboard", you can click the "Quick translate" button to translate the Chinese text after editing, this function only takes effect after using "Translate from clipboard", it helps Speed up the editing and translation process.
 2. You can use "batch_copy_rename_ui.py" to automatically copy all the necessary files from Quick Translator to the project's "data" directory.
 
 ## Screenshot
