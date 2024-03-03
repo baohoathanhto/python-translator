@@ -1,0 +1,13 @@
+{
+    "input_folder": "D:/Portable/QuickTranslator",
+    "output_folder": "D:/Projects/Python/python-translator/data",
+    "ttkb_theme": "superhero",
+    "data_names": {
+        "Names.txt": "zh_names.csv",
+        "Names2.txt": "zh_names2.csv",
+        "VietPhrase.txt": "zh_words.csv",
+        "ChinesePhienAmWords.txt": "zh_dicts.csv",
+        "LacViet.txt": "zh_means_lacviet.csv",
+        "ThieuChuu.txt": "zh_means_thieuchuu.csv"
+    }
+}

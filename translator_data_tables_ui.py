@@ -1,116 +1,147 @@
 import tkinter as tk
 from tkinter import ttk
+import ttkbootstrap as ttkb
+import translator
 
-def display_table(data):     
-    if not data:
-        return
-    
-    # Create the Tkinter root window
-    root = tk.Tk()
-    root.title("Table Example")
-    
-    # Create a container to hold the canvas and scrollbar
-    container = tk.Frame(root)
-    container.pack(expand=True, fill=tk.BOTH)
-    
-    # Create a canvas to hold the table
-    canvas = tk.Canvas(container)
-    canvas.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
-    
-    # Create a scrollbar for the canvas
-    scrollbar = tk.Scrollbar(container, orient=tk.VERTICAL, command=canvas.yview)
-    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-    
-    # Configure the canvas to use the scrollbar
-    canvas.configure(yscrollcommand=scrollbar.set)
-    
-    # Create the table inside the canvas
-    table = tk.Frame(canvas, bg="white")
-    canvas.create_window((0, 0), window=table, anchor=tk.NW)
-    
-    # Function to update the scroll region
-    def update_scroll_region(event):
-        canvas.configure(scrollregion=canvas.bbox("all"))
-    
-    # Bind the canvas to the scroll region update function
-    table.bind("<Configure>", update_scroll_region)
-    
-    # Create table headers
-    headers = list(data[0].keys())
-    for i, header in enumerate(headers):
-        header_label = tk.Label(table, text=header, padx=10, pady=5, borderwidth=1, relief=tk.RAISED, bg="#f0f0f0", font=("Arial", 10, "bold"))
-        header_label.grid(row=0, column=i, sticky="nsew")
+class DataTables(tk.Toplevel):
+    def __init__(self, parent):
+        super().__init__(parent)
 
-    # Insert data into the table
-    for i, row_data in enumerate(data):
-        for j, key in enumerate(headers):
-            value = row_data[key]
-            cell = tk.Label(table, text=value, padx=10, pady=5, borderwidth=1, relief=tk.RIDGE, bg="white", font=("Arial", 10))
-            cell.grid(row=i+1, column=j, sticky="nsew")
+        self.title("Data Tables")
+        self.wm_state('zoomed')
 
-    # Configure column weights to allow resizing
-    for i in range(len(headers)):
-        table.grid_columnconfigure(i, weight=1)
-    
-    # Function to scroll the canvas when the mouse wheel is scrolled
-    def on_mousewheel(event):
-        canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+        self.setup_gui()
 
-    # Bind the mouse wheel event to the canvas
-    canvas.bind_all("<MouseWheel>", on_mousewheel)
-    
-    root.mainloop()
-    
-def display_table_no_header(data):     
-    if not data:
-        return
-    
-    # Create the Tkinter root window
-    root = tk.Tk()
-    root.title("Table Example")
-    
-    # Create a container to hold the canvas and scrollbar
-    container = tk.Frame(root)
-    container.pack(expand=True, fill=tk.BOTH)
-    
-    # Create a canvas to hold the table
-    canvas = tk.Canvas(container)
-    canvas.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
-    
-    # Create a scrollbar for the canvas
-    scrollbar = tk.Scrollbar(container, orient=tk.VERTICAL, command=canvas.yview)
-    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-    
-    # Configure the canvas to use the scrollbar
-    canvas.configure(yscrollcommand=scrollbar.set)
-    
-    # Create the table inside the canvas
-    table = tk.Frame(canvas, bg="white")
-    canvas.create_window((0, 0), window=table, anchor=tk.NW)
-    
-    # Function to update the scroll region
-    def update_scroll_region(event):
-        canvas.configure(scrollregion=canvas.bbox("all"))
-    
-    # Bind the canvas to the scroll region update function
-    table.bind("<Configure>", update_scroll_region)
-    
-    # Insert data into the table
-    for i, row_data in enumerate(data):
-        for j, value in enumerate(row_data):
-            cell = tk.Label(table, text=value, padx=10, pady=5, borderwidth=1, relief=tk.RIDGE, bg="white", font=("Arial", 10))
-            cell.grid(row=i, column=j, sticky="nsew")
+        self.data_search = translator.z_data_search.get_data()
+        self.data_means = translator.z_data_means.get_data()
+        self.last_search_index = None
 
-    # Configure column weights to allow resizing
-    num_columns = len(data[0])  # Assuming all rows have the same number of columns
-    for i in range(num_columns):
-        table.grid_columnconfigure(i, weight=1)
-    
-    # Function to scroll the canvas when the mouse wheel is scrolled
-    def on_mousewheel(event):
-        canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+        self.create_table(self.data_tree, self.data_search)
 
-    # Bind the mouse wheel event to the canvas
-    canvas.bind_all("<MouseWheel>", on_mousewheel)
-    
-    root.mainloop()
+    def setup_gui(self):
+        # Frame for row 1
+        frame_row1 = tk.Frame(self)
+        frame_row1.pack(fill=tk.X, padx=(10, 10), pady=(10, 5))
+
+        # Create a combobox to choose all local data type
+        data_types = ["Data search", "Data meaning", "Data name", "Data name 2", "Data words", "Data dictionaries"]
+        data_label = ttkb.Label(frame_row1, text="Choose data type:")
+        data_label.pack(side=tk.LEFT, padx=5)
+        self.data_combobox = ttkb.Combobox(frame_row1, values=data_types)
+        self.data_combobox.current(0)
+        self.data_combobox.bind("<<ComboboxSelected>>", self.change_data_type)
+        self.data_combobox.pack(side=tk.LEFT, padx=5)
+
+        self.search_button = ttk.Button(frame_row1, text="Search", command=self.search_data)
+        self.search_button.pack(side=tk.RIGHT, padx=5)
+
+        self.search_entry = ttk.Entry(frame_row1)
+        self.search_entry.pack(side=tk.RIGHT)
+
+        # Frame for row 2
+        frame_row2 = tk.Frame(self)
+        frame_row2.pack(expand=True, fill=tk.BOTH, padx=(10, 10), pady=(5, 10))
+
+        # Create a treeview to hold the table
+        self.data_tree = ttkb.Treeview(frame_row2, show="headings")
+        self.data_tree.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
+        
+        # Add vertical scrollbar for the treeview
+        v_scrollbar = ttkb.Scrollbar(self.data_tree, orient=tk.VERTICAL, command=self.data_tree.yview)
+        v_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.data_tree.configure(yscrollcommand=v_scrollbar.set)
+
+        # Add horizontal scrollbar for the treeview
+        h_scrollbar = ttkb.Scrollbar(self.data_tree, orient=tk.HORIZONTAL, command=self.data_tree.xview)
+        h_scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
+        self.data_tree.configure(xscrollcommand=h_scrollbar.set)
+
+    def create_table(self, data_tree, data):
+        # Clear existing columns and items in the Treeview
+        data_tree['columns'] = data[0].keys() if data else []
+        data_tree.delete(*data_tree.get_children())
+
+        # Get the keys from the first dictionary
+        headers = list(data[0].keys())
+
+        # Insert headers into the treeview
+        for i, header in enumerate(headers):
+            data_tree.heading(i, text=header, anchor=tk.W)  # Use index i as column identifier
+
+        # Insert data into the treeview
+        for row_data in data:
+            values = [value for value in row_data.values()]  # Extract values from each row_data dictionary
+            data_tree.insert("", tk.END, values=values)
+
+        # Get the maximum width of text in each column
+        tree_font = tk.font.Font(family="Arial", size=10)
+        max_widths = {}
+        for header in headers:
+            # Initialize the maximum width and index with the length of the header string and -1 respectively
+            max_width = len(str(header))
+            max_index = -1
+            
+            # Iterate through each row in the data to find the maximum width for the current header
+            for index, row_data in enumerate(data):
+                # Get the length of the string representation of the value corresponding to the header
+                width = len(str(row_data[header]))
+                # Update max_width and max_index if the current width is greater
+                if width > max_width:
+                    max_width = width
+                    max_index = index
+            
+            # Store the maximum width and its corresponding row index for the current header
+            if max_index == -1:
+                max_widths[header] = tree_font.measure(str(header))
+            else:
+                max_widths[header] = tree_font.measure(str(data[max_index][header]))
+
+        # Set the column width in the treeview
+        for index, (header, max_width) in enumerate(max_widths.items()):
+            #print(f"Column '{header}': Index = '{index}': Max Width = {max_width}")
+            data_tree.column(index, anchor=tk.W, width=max_width + 20) # Padding +20
+
+    def change_data_type(self, event):
+        data_table = [{"ID": -1, "ROOT_ID": -1, "Chinese": "None", "Vietnamese": "None"}]
+        data_type = self.data_combobox.get()
+        if data_type == "Data search":
+            data_table = self.data_search
+        elif data_type == "Data meaning":
+            data_table = self.data_means
+        elif data_type == "Data name" and translator.z_data_names_local:
+            data_table = [{"ID": index, "ROOT_ID": line[2], "Chinese": line[0], "Vietnamese": line[1]} for index, line in enumerate(translator.z_data_names_local)]
+        elif data_type == "Data name 2" and translator.z_data_names2_local:
+            data_table = [{"ID": index, "ROOT_ID": line[2], "Chinese": line[0], "Vietnamese": line[1]} for index, line in enumerate(translator.z_data_names2_local)]
+        elif data_type == "Data words" and translator.z_data_words_local:
+            data_table = [{"ID": index, "ROOT_ID": line[2], "Chinese": line[0], "Vietnamese": line[1]} for index, line in enumerate(translator.z_data_words_local)]
+        elif data_type == "Data dictionaries" and translator.z_data_dicts_local:
+            data_table = [{"ID": index, "ROOT_ID": line[2], "Chinese": line[0], "Vietnamese": line[1]} for index, line in enumerate(translator.z_data_dicts_local)]
+        else:
+            pass
+
+        self.create_table(self.data_tree, data_table)
+
+    def search_data(self):
+        query = self.search_entry.get().lower()
+        if query:
+            if self.last_search_index is None:
+                self.last_search_index = 0
+            else:
+                self.last_search_index += 1
+
+            items = self.data_tree.get_children()
+            num_items = len(items)
+            
+            for _ in range(num_items):  # Loop through all items
+                item = items[self.last_search_index % num_items]  # Wrap around to start if end is reached
+                values = self.data_tree.item(item, 'values')
+                if any(query in str(value).lower() for value in values):
+                    self.data_tree.selection_set(item)
+                    self.data_tree.focus(item)
+                    self.data_tree.see(item)  # Ensure selected item is visible
+                    self.last_search_index = items.index(item)
+                    return
+                self.last_search_index += 1
+            
+            self.data_tree.selection_remove(self.data_tree.selection())
+            self.last_search_index = None
