@@ -1,6 +1,6 @@
 # Python Translator
 
-Python Translator is a simple command-line tool built with Python for translating text between different languages using the Google Translate API.
+Python Translator is a simple GUI tool built in Python to translate text from Chinese to Vietnamese, with functions referenced from Quick Translator.
 
 ## GUI Translator (Chinese to Vietnamese)
 
