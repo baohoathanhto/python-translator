@@ -311,7 +311,7 @@ class ZDataMeans:
                     type_name = 'Thiều Chửu'
                 else:
                     type_name = 'Unknown'
-                info += f'\n{separator}\n{data_mean["TRUNG"]}《{type_name} ~ {data_mean["ID"] + 1}》\n{revert_escape_characters(data_mean["VIET"])}'
+                info += f'\n{separator}\n{data_mean["TRUNG"]}《{type_name} ~ {int(data_mean["ROOT_ID"]) + 1}》\n{revert_escape_characters(data_mean["VIET"])}'
                 count += 1
         if info != '':
             result += info

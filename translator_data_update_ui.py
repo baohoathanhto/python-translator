@@ -14,6 +14,7 @@ class DataUpdate(tk.Toplevel):
 
         self.parent = parent
         self.text_trung = selected_text
+        self.text_trung_backup = self.text_trung
         self.text_han, self.text_viet = tr.quick_translate(self.text_trung, False)
         self.data_list = tr.z_data_search_update.get_data_update_list(self.text_trung)
         self.data_items_ids = [] # List to store ID & ROOT_ID of the current items
@@ -66,7 +67,7 @@ class DataUpdate(tk.Toplevel):
 
     def reset_chinese_text(self):
         self.chinese_entry.delete(0, tk.END)
-        self.chinese_entry.insert(0, self.text_trung)
+        self.chinese_entry.insert(0, self.text_trung_backup)
         self.chinese_changed()
 
     def add_item(self):
@@ -181,8 +182,8 @@ class DataUpdate(tk.Toplevel):
         self.refresh_items()
 
     def chinese_changed(self, event=None):
-        new_text = self.chinese_entry.get()
-        self.text_han, self.text_viet = tr.quick_translate(new_text, False)
+        self.text_trung = self.chinese_entry.get()
+        self.text_han, self.text_viet = tr.quick_translate(self.text_trung, False)
 
         # Update the hanviet_entry with the new text
         self.hanviet_entry.delete(0, tk.END)
@@ -192,5 +193,5 @@ class DataUpdate(tk.Toplevel):
         self.vietnamese_entry.delete(0, tk.END)
         self.vietnamese_entry.insert(0, self.text_viet)
 
-        self.data_list = tr.z_data_search_update.get_data_update_list(new_text)
+        self.data_list = tr.z_data_search_update.get_data_update_list(self.text_trung)
         self.load_data_items()
