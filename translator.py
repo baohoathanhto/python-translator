@@ -540,6 +540,7 @@ z_data_words_local = []
 z_data_dicts_local = []
 
 z_data_search = ZData()
+z_data_search_update = ZData()
 z_data_means = ZDataMeans()
 
 def update_data_csv(data_type, data_ids, txt_trung, txt_viet):
@@ -619,6 +620,41 @@ def delete_data_csv(data_type, data_ids):
             z_data_words.pop(global_id)
             save_data("zh_words.csv", z_data_words)
 
+def get_data_search(txt_trung):
+    # Initialize ZData
+    data_search = ZData()
+
+    # Search string using local data to increase perfomance
+    data_search.push_data(txt_trung, z_data_names_local, DATA_TYPE_NAMES)
+    data_search.push_data(txt_trung, z_data_names2_local, DATA_TYPE_NAMES2)
+    data_search.push_data(txt_trung, z_data_words_local, DATA_TYPE_WORDS)
+    data_search.push_data(txt_trung, z_data_dicts_local, DATA_TYPE_DICTS)
+
+    # Sort & then clean duplicate words
+    data_search.clean_duplicate()
+
+    # Update 'HAN' word into searched data
+    data_search.update_dicts(z_data_dicts)
+
+    # Add other chars not in any original data.csv & sort again
+    data_search.push_other_chars(txt_trung, DATA_TYPE_OTHERS)
+
+    return data_search
+
+def get_data_means(txt_trung):
+    # Make new local meaning dictionary (Vietphrase, Lac Viet, Thieu Chuu) for this text
+    data_means = ZDataMeans()
+
+    data_means.push_data(txt_trung, z_data_names_local, DATA_MEANS_TYPE_VIETPHRASE_NAMES);
+    data_means.push_data(txt_trung, z_data_names2_local, DATA_MEANS_TYPE_VIETPHRASE_NAMES);
+    data_means.push_data(txt_trung, z_data_words_local, DATA_MEANS_TYPE_VIETPHRASE_WORDS);
+    data_means.push_data(txt_trung, z_data_means_lacviet, DATA_MEANS_TYPE_LACVIET);
+    data_means.push_data(txt_trung, z_data_means_thieuchu, DATA_MEANS_TYPE_THIEUCHUU);
+
+    data_means.clean_duplicate()
+
+    return data_means
+
 # Translate function
 def translate(txt_trung):
     global z_data_names_local
@@ -634,46 +670,17 @@ def translate(txt_trung):
     try:
         # Check if Chinese text is not empty
         if txt_trung:
-            # Initialize ZData
-            data_search = ZData()
-
             # Get local data from data.csv to use for this context
             z_data_names_local = get_data_local(txt_trung, z_data_names, DATA_TYPE_NAMES)
             z_data_names2_local = get_data_local(txt_trung, z_data_names2, DATA_TYPE_NAMES2)
             z_data_words_local = get_data_local(txt_trung, z_data_words, DATA_TYPE_WORDS)
             z_data_dicts_local = get_data_local(txt_trung, z_data_dicts, DATA_TYPE_DICTS)
 
-            # Search string using local data to increase perfomance
-            data_search.push_data(txt_trung, z_data_names_local, DATA_TYPE_NAMES)
-            data_search.push_data(txt_trung, z_data_names2_local, DATA_TYPE_NAMES2)
-            data_search.push_data(txt_trung, z_data_words_local, DATA_TYPE_WORDS)
-            data_search.push_data(txt_trung, z_data_dicts_local, DATA_TYPE_DICTS)
-
-            # Sort & then clean duplicate words
-            data_search.clean_duplicate()
-
-            # Update 'HAN' word into searched data
-            data_search.update_dicts(z_data_dicts)
-
-            # Add other chars not in any original data.csv & sort again
-            data_search.push_other_chars(txt_trung, DATA_TYPE_OTHERS)
-            
-            # Make new local meaning dictionary (Vietphrase, Lac Viet, Thieu Chuu) for this text
-            data_means = ZDataMeans()
-
-            data_means.push_data(txt_trung, z_data_names_local, DATA_MEANS_TYPE_VIETPHRASE_NAMES);
-            data_means.push_data(txt_trung, z_data_names2_local, DATA_MEANS_TYPE_VIETPHRASE_NAMES);
-            data_means.push_data(txt_trung, z_data_words_local, DATA_MEANS_TYPE_VIETPHRASE_WORDS);
-            data_means.push_data(txt_trung, z_data_means_lacviet, DATA_MEANS_TYPE_LACVIET);
-            data_means.push_data(txt_trung, z_data_means_thieuchu, DATA_MEANS_TYPE_THIEUCHUU);
-
-            data_means.clean_duplicate();
+            z_data_search = get_data_search(txt_trung)
+            z_data_means = get_data_means(txt_trung)            
             
             # Get Han Viet translation
-            txt_han, txt_viet = data_search.get_han_viet()
-
-            z_data_search = data_search
-            z_data_means = data_means
+            txt_han, txt_viet = z_data_search.get_han_viet()
         else:
             messagebox.showinfo("Error", "Please enter Chinese text.")
     except Exception as e:
@@ -684,6 +691,7 @@ def translate(txt_trung):
 # Quick translate function, only using local data from the previous translate
 def quick_translate(txt_trung, is_translate=True):
     global z_data_search
+    global z_data_search_update
     global z_data_means
 
     txt_han = ""
@@ -693,22 +701,7 @@ def quick_translate(txt_trung, is_translate=True):
         # Check if Chinese text is not empty
         if txt_trung:
             # Initialize ZData
-            data_search = ZData()
-
-            # Search string using local data to increase perfomance
-            data_search.push_data(txt_trung, z_data_names_local, DATA_TYPE_NAMES)
-            data_search.push_data(txt_trung, z_data_names2_local, DATA_TYPE_NAMES2)
-            data_search.push_data(txt_trung, z_data_words_local, DATA_TYPE_WORDS)
-            data_search.push_data(txt_trung, z_data_dicts_local, DATA_TYPE_DICTS)
-
-            # Sort & then clean duplicate words
-            data_search.clean_duplicate()
-
-            # Update 'HAN' word into searched data
-            data_search.update_dicts(z_data_dicts)
-
-            # Add other chars not in any original data.csv & sort again
-            data_search.push_other_chars(txt_trung, DATA_TYPE_OTHERS)
+            data_search = get_data_search(txt_trung)
             
             # Get Han Viet translation
             txt_han, txt_viet = data_search.get_han_viet()
@@ -719,9 +712,11 @@ def quick_translate(txt_trung, is_translate=True):
         
     if is_translate:
         z_data_search = data_search
+        z_data_means = get_data_means(txt_trung)
         txt_han = to_sentence_case(txt_han)
         txt_viet = to_sentence_case(txt_viet)
     else:
+        z_data_search_update = data_search
         txt_han = txt_han.strip()
         txt_viet = txt_viet.strip()
 

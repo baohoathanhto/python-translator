@@ -15,7 +15,7 @@ class DataUpdate(tk.Toplevel):
         self.parent = parent
         self.text_trung = selected_text
         self.text_han, self.text_viet = tr.quick_translate(self.text_trung, False)
-        self.data_list = tr.z_data_search.get_data_update_list(self.text_trung)
+        self.data_list = tr.z_data_search_update.get_data_update_list(self.text_trung)
         self.data_items_ids = [] # List to store ID & ROOT_ID of the current items
         self.data_items = []  # List to store data items separate by "/"
         self.create_widgets()
@@ -100,7 +100,8 @@ class DataUpdate(tk.Toplevel):
 
         # Recreate items from the updated list
         for i, item_name in enumerate(self.data_items):
-            entry = ttkb.Entry(self.items_frame, width=60)
+            style = "success" if i == 0 else "light"
+            entry = ttkb.Entry(self.items_frame, bootstyle=style, width=60)
             entry.insert(0, item_name)
             entry.grid(row=i, column=0, sticky="ew", padx=(10,1), pady=5)
             entry.bind("<KeyRelease>", lambda event, index=i, entry=entry: self.update_item(index, entry))  # Bind an event to update data_items
@@ -191,5 +192,5 @@ class DataUpdate(tk.Toplevel):
         self.vietnamese_entry.delete(0, tk.END)
         self.vietnamese_entry.insert(0, self.text_viet)
 
-        self.data_list = tr.z_data_search.get_data_update_list(new_text)
+        self.data_list = tr.z_data_search_update.get_data_update_list(new_text)
         self.load_data_items()
