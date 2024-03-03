@@ -12,6 +12,7 @@ This is a graphical user interface (GUI) translator application that translates 
 - tkinter (Python's built-in GUI framework)
 - pyperclip 1.8.2
 - ttkbootstrap 1.10.1
+- Best resolution is 1280x720 (or you have to manually adjust the size of the widgets)
 
 ## Installation
 
