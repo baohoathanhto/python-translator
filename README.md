@@ -4,12 +4,14 @@ Python Translator is a simple command-line tool built with Python for translatin
 
 ## GUI Translator (Chinese to Vietnamese)
 
-This is a graphical user interface (GUI) translator application that translates text from Chinese to Vietnamese using a local API.
+This is a graphical user interface (GUI) translator application that translates text from Chinese to Vietnamese.
 
 ## Requirements
 
-- Python 3.x
-- Tkinter (Python's built-in GUI framework)
+- Python 3.8.10
+- tkinter (Python's built-in GUI framework)
+- pyperclip 1.8.2
+- ttkbootstrap 1.10.1
 
 ## Installation
 
@@ -25,11 +27,12 @@ This is a graphical user interface (GUI) translator application that translates 
 ## Usage
 
 To use the GUI translator, run the following command:
-   python translator.py
+   python translator_ui.py
 
-1. Input the text you want to translate in Chinese.
-2. Click the "Translate" button.
-3. The translated text will be displayed in Vietnamese.
+1. Copy the text you want to translate from any sources (Word, Notepad, Browser,...).
+2. Click the "Translate from clipboard" button.
+3. The translated text will be displayed in Vietnamese tab.
+4. Then you can click the "Quick translate" button to translate the Chinese text after editing it, this function is only valid for the text that has just been translated using "Translate from clipboard".
 
 ## Screenshot
 
