@@ -31,12 +31,15 @@ To use the GUI translator, run the following command:
    python translator_ui.py
 
 1. Copy the text you want to translate from any sources (Word, Notepad, Browser,...).
+
 2. Click the "Translate from clipboard" button.
+
 3. The translated text will be displayed in Vietnamese tab.
 
 ## Other Usage
 
 1. After "Translate from clipboard", you can click the "Quick translate" button to translate the Chinese text after editing, this function only takes effect after using "Translate from clipboard", it helps Speed up the editing and translation process.
+
 2. You can use "batch_copy_rename_ui.py" to automatically copy all the necessary files from Quick Translator to the project's "data" directory.
 
 ## Screenshot
