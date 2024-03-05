@@ -299,18 +299,8 @@ class ZDataMeans:
         for data_mean in self.z_data:
             pos = chinese_text.find(data_mean['TRUNG'])
             if pos != -1:
-                type_name = ''
+                type_name = data_mean['TYPE_NAME']
                 separator = '-----------------' if count > 0 else ''
-                if data_mean['TYPE'] == DATA_MEANS_TYPE_VIETPHRASE_NAMES:
-                    type_name = 'VietPhrase - Name'
-                elif data_mean['TYPE'] == DATA_MEANS_TYPE_VIETPHRASE_WORDS:
-                    type_name = 'VietPhrase'
-                elif data_mean['TYPE'] == DATA_MEANS_TYPE_LACVIET:
-                    type_name = 'Lạc Việt'
-                elif data_mean['TYPE'] == DATA_MEANS_TYPE_THIEUCHUU:
-                    type_name = 'Thiều Chửu'
-                else:
-                    type_name = 'Unknown'
                 info += f'\n{separator}\n{data_mean["TRUNG"]}《{type_name} ~ {int(data_mean["ROOT_ID"]) + 1}》\n{revert_escape_characters(data_mean["VIET"])}'
                 count += 1
         if info != '':
@@ -505,27 +495,26 @@ DATA_TYPE_NAMES = 1
 DATA_TYPE_NAMES2 = 2
 DATA_TYPE_WORDS = 3
 DATA_TYPE_DICTS = 4
-DATA_TYPE_OTHERS = 5
+DATA_TYPE_LACVIET = 5
+DATA_TYPE_THIEUCHUU = 6
+DATA_TYPE_OTHERS = 7
 
 # Mapping dictionary
 data_type_mapping = {
     DATA_TYPE_NAMES: "Names",
-    DATA_TYPE_NAMES2: "Names2",
+    DATA_TYPE_NAMES2: "Names 2",
     DATA_TYPE_WORDS: "Words",
     DATA_TYPE_DICTS: "Dicts",
+    DATA_TYPE_LACVIET: "Lạc Việt",
+    DATA_TYPE_THIEUCHUU: "Thiều Chửu",
     DATA_TYPE_OTHERS: "Others"
 }
 
 data_type_update = {
     DATA_TYPE_NAMES: "Names",
-    DATA_TYPE_NAMES2: "Names2",
+    DATA_TYPE_NAMES2: "Names 2",
     DATA_TYPE_WORDS: "Words"
 }
-
-DATA_MEANS_TYPE_VIETPHRASE_NAMES = 1
-DATA_MEANS_TYPE_VIETPHRASE_WORDS = 2
-DATA_MEANS_TYPE_LACVIET = 3
-DATA_MEANS_TYPE_THIEUCHUU = 4
 
 z_data_names = get_data("zh_names.csv")
 z_data_names2 = get_data("zh_names2.csv")
@@ -645,11 +634,11 @@ def get_data_means(txt_trung):
     # Make new local meaning dictionary (Vietphrase, Lac Viet, Thieu Chuu) for this text
     data_means = ZDataMeans()
 
-    data_means.push_data(txt_trung, z_data_names_local, DATA_MEANS_TYPE_VIETPHRASE_NAMES);
-    data_means.push_data(txt_trung, z_data_names2_local, DATA_MEANS_TYPE_VIETPHRASE_NAMES);
-    data_means.push_data(txt_trung, z_data_words_local, DATA_MEANS_TYPE_VIETPHRASE_WORDS);
-    data_means.push_data(txt_trung, z_data_means_lacviet, DATA_MEANS_TYPE_LACVIET);
-    data_means.push_data(txt_trung, z_data_means_thieuchu, DATA_MEANS_TYPE_THIEUCHUU);
+    data_means.push_data(txt_trung, z_data_names_local, DATA_TYPE_NAMES);
+    data_means.push_data(txt_trung, z_data_names2_local, DATA_TYPE_NAMES2);
+    data_means.push_data(txt_trung, z_data_words_local, DATA_TYPE_WORDS);
+    data_means.push_data(txt_trung, z_data_means_lacviet, DATA_TYPE_LACVIET);
+    data_means.push_data(txt_trung, z_data_means_thieuchu, DATA_TYPE_THIEUCHUU);
 
     data_means.clean_duplicate()
 
