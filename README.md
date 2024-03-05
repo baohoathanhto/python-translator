@@ -17,18 +17,26 @@ This is a graphical user interface (GUI) translator application that translates 
 ## Installation
 
 1. Clone the repository:
+```bash
    git clone https://github.com/baohoathanhto/python-translator.git
+```
 
 2. Navigate to the project directory:
+```bash
    cd python-translator
+```
 
 3. Install the required dependencies:
+```bash
    pip install -r requirements.txt
+```
 
 ## Usage
 
 To use the GUI translator, run the following command:
+```bash
    python translator_ui.py
+```
 
 1. Copy the text you want to translate from any sources (Word, Notepad, Browser,...).
 
@@ -41,6 +49,9 @@ To use the GUI translator, run the following command:
 1. After "Translate from clipboard", you can click the "Quick translate" button to translate the Chinese text after editing, this function only takes effect after using "Translate from clipboard", it helps Speed up the editing and translation process.
 
 2. You can use "batch_copy_rename_ui.py" to automatically copy all the necessary files from Quick Translator to the project's "data" directory.
+```bash
+   python batch_copy_rename_ui.py
+```
 
 ## Screenshot
 
