@@ -59,7 +59,7 @@ class ZData:
     def get_data_update_list(self, txt_trung):
         data_list = []
         for data in self.z_data:
-            if data['TRUNG'] == txt_trung:
+            if data['TRUNG'] == txt_trung and data['TYPE'] in data_type_update:
                 data_list.append(data)
         return data_list
 

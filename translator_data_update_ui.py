@@ -30,7 +30,7 @@ class DataUpdate(tk.Toplevel):
         if self.data_list:
             self.data_type_combobox.set(self.data_list[0]['TYPE_NAME'])
         else:
-            self.data_type_combobox.set(tr.data_type_mapping[tr.DATA_TYPE_WORDS])
+            self.data_type_combobox.set(tr.data_type_update[tr.DATA_TYPE_WORDS])
         self.data_type_combobox.bind("<<ComboboxSelected>>", self.load_data_items)
 
         self.chinese_entry = ttkb.Entry(self.top_frame, width=73)
