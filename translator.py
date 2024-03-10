@@ -74,7 +74,7 @@ class ZData:
                 while index < len(line) and index != -1:
                     index = line.find(str_search, index)
                     if index != -1:
-                        self.z_data.append({'TYPE': data_type, 'TYPE_NAME': data_type_mapping[data_type], 'ID': i, 'ROOT_ID': data_csv[i][2], 'LINE': line_num, 'T_INDEX': index, 'H_INDEX': -1, 'V_INDEX': -1, 'TRUNG': str_search, 'HAN': '', 'VIET': data_csv[i][1]})
+                        self.z_data.append({'TYPE': data_type, 'TYPE_NAME': data_type_mapping[data_type], 'ID': i, 'ROOT_ID': data_csv[i][2], 'LINE': line_num, 'T_INDEX': index, 'H_INDEX': -1, 'V_INDEX': -1, 'T_LEN': len(str_search), 'TRUNG': str_search, 'HAN': '', 'VIET': data_csv[i][1]})
                         index += 1
                 line_num += 1
     
@@ -88,14 +88,14 @@ class ZData:
                 for t_index, trung in existed_data:
                     if index < t_index:
                         result = line[index:t_index]
-                        self.z_data.append({'TYPE': data_type, 'TYPE_NAME': data_type_mapping[data_type], 'ID': -1, 'ROOT_ID': -1, 'LINE': line_num, 'T_INDEX': index, 'H_INDEX': -1, 'V_INDEX': -1, 'TRUNG': result, 'HAN': result, 'VIET': result})
+                        self.z_data.append({'TYPE': data_type, 'TYPE_NAME': data_type_mapping[data_type], 'ID': -1, 'ROOT_ID': -1, 'LINE': line_num, 'T_INDEX': index, 'H_INDEX': -1, 'V_INDEX': -1, 'T_LEN': len(result), 'TRUNG': result, 'HAN': result, 'VIET': result})
                     index = t_index + len(trung) # data[1] = TRUNG
                 if index < len(line):
                     result = line[index:len(line)]
-                    self.z_data.append({'TYPE': data_type, 'TYPE_NAME': data_type_mapping[data_type], 'ID': -1, 'ROOT_ID': -1, 'LINE': line_num, 'T_INDEX': index, 'H_INDEX': -1, 'V_INDEX': -1, 'TRUNG': result, 'HAN': result, 'VIET': result})
+                    self.z_data.append({'TYPE': data_type, 'TYPE_NAME': data_type_mapping[data_type], 'ID': -1, 'ROOT_ID': -1, 'LINE': line_num, 'T_INDEX': index, 'H_INDEX': -1, 'V_INDEX': -1, 'T_LEN': len(result), 'TRUNG': result, 'HAN': result, 'VIET': result})
             else:
                 result = line
-                self.z_data.append({'TYPE': data_type, 'TYPE_NAME': data_type_mapping[data_type], 'ID': -1, 'ROOT_ID': -1, 'LINE': line_num, 'T_INDEX': index, 'H_INDEX': -1, 'V_INDEX': -1, 'TRUNG': result, 'HAN': result, 'VIET': result})
+                self.z_data.append({'TYPE': data_type, 'TYPE_NAME': data_type_mapping[data_type], 'ID': -1, 'ROOT_ID': -1, 'LINE': line_num, 'T_INDEX': index, 'H_INDEX': -1, 'V_INDEX': -1, 'T_LEN': len(result), 'TRUNG': result, 'HAN': result, 'VIET': result})
                    
         self.z_data = sorted(self.z_data, key=lambda x: (x['LINE'], x['T_INDEX']))
 
@@ -111,7 +111,7 @@ class ZData:
         if not self.z_data:
             pass
 
-        self.z_data = sorted(self.z_data, key=lambda x: (x['LINE'], x['T_INDEX']))
+        self.z_data = sorted(self.z_data, key=lambda x: (x['LINE'], x['T_INDEX'], -x['T_LEN']))
 
         i = 0
         while i < len(self.z_data):
