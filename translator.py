@@ -396,7 +396,7 @@ def clean_duplicate_array(data, index):
     return unique_data
         
 def to_sentence_case(text):
-    return re.sub(r'(^|[\n.?!:][ “”‘’\"\'{}[\]()<>]*)(\w)', lambda match: match.group().upper(), text, flags=re.UNICODE)
+    return re.sub(r'(^|[\n.?!:][ 　“”‘’\"\'{}[\]()<>]*)(\w)', lambda match: match.group().upper(), text, flags=re.UNICODE)
 
 def replace_special_characters(input_string):
     # Mapping of special characters to their regular counterparts
