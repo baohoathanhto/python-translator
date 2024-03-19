@@ -167,8 +167,6 @@ class ZData:
         line_end = int(index_end.split('.')[0])
         column_end = int(index_end.split('.')[1]) - 1 # columne_end is the index of the last selected character + 1, so this could be -1 to match the concept
 
-        #print (f"index_start: {index_start}, index_end: {index_end}")
-
         # Store index & text header of each textbox
         lang_type = {
             'chinese': ['T_INDEX', 'TRUNG'],
@@ -315,7 +313,7 @@ class ZDataMeans:
                 
 def read_csv(file_path):
     data = []
-    with open(file_path, mode="r", encoding="utf-8") as file:
+    with open(file_path, mode="r", encoding="utf-8-sig") as file: # Use utf-8-sig to handle BOM
         reader = csv.reader(file, delimiter="=", quoting=csv.QUOTE_NONE)  # Specify the delimiter
         for i, row in enumerate(reader):
             row.insert(2, str(i))  # Inserting index as the third element (index 2)
@@ -350,7 +348,7 @@ def save_data(file_name, data_csv):
         print(f"Error: File '{file_path}' not found.")
         return []
 
-def get_data_local(text, data_csv, data_type):
+def get_data_local(text, data_csv):
     text = remove_escape_characters(text)
     data_local = []
     for row in data_csv:
@@ -460,9 +458,9 @@ def convert_escape_characters(text):
     replacements = {'\n': '\\n', '\t': '\\t', '\r': '\\r'}
     
     # Use re.sub() to replace newline, tab, and carriage return characters with their escape sequences
-    reverted_text = re.sub(pattern, lambda match: replacements.get(match.group(1)), text)
+    replaced_text = re.sub(pattern, lambda match: replacements.get(match.group(1)), text)
     
-    return reverted_text
+    return replaced_text
 
 # Remove from text
 def remove_escape_characters(text):
@@ -473,9 +471,9 @@ def remove_escape_characters(text):
     replacements = {'\n': '', '\t': '', '\r': ''}
     
     # Use re.sub() to replace newline, tab, and carriage return characters with their escape sequences
-    reverted_text = re.sub(pattern, lambda match: replacements.get(match.group(1)), text)
+    replaced_text = re.sub(pattern, lambda match: replacements.get(match.group(1)), text)
     
-    return reverted_text
+    return replaced_text
 
 def splitlines_keep_linebreak(text):
     lines = []
@@ -546,7 +544,6 @@ def update_data_csv(data_type, data_ids, txt_trung, txt_viet):
     if data_ids:
         local_id = int(data_ids[0][0])
         global_id = int(data_ids[0][1])
-        #print(f"data_type = {data_type}, local_id = {local_id}, global_id = {global_id}")
 
     if data_type == DATA_TYPE_NAMES:
         if data_ids:
@@ -589,7 +586,6 @@ def delete_data_csv(data_type, data_ids):
     if data_ids:
         local_id = int(data_ids[0][0])
         global_id = int(data_ids[0][1])
-        print(f"data_type = {data_type}, local_id = {local_id}, global_id = {global_id}")
 
     if data_type == DATA_TYPE_NAMES:
         if data_ids:
@@ -660,10 +656,10 @@ def translate(txt_trung):
         # Check if Chinese text is not empty
         if txt_trung:
             # Get local data from data.csv to use for this context
-            z_data_names_local = get_data_local(txt_trung, z_data_names, DATA_TYPE_NAMES)
-            z_data_names2_local = get_data_local(txt_trung, z_data_names2, DATA_TYPE_NAMES2)
-            z_data_words_local = get_data_local(txt_trung, z_data_words, DATA_TYPE_WORDS)
-            z_data_dicts_local = get_data_local(txt_trung, z_data_dicts, DATA_TYPE_DICTS)
+            z_data_names_local = get_data_local(txt_trung, z_data_names)
+            z_data_names2_local = get_data_local(txt_trung, z_data_names2)
+            z_data_words_local = get_data_local(txt_trung, z_data_words)
+            z_data_dicts_local = get_data_local(txt_trung, z_data_dicts)
 
             z_data_search = get_data_search(txt_trung)
             z_data_means = get_data_means(txt_trung)            

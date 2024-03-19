@@ -195,8 +195,6 @@ class TranslatorApp(tk.Tk):
                 # Update the meaning_textbox with the selected text
                 self.meaning_textbox.delete("1.0", tk.END)
                 self.meaning_textbox.insert("1.0", meaning_text)
-            else:
-                print("Selected text not in dictionary.")
 
     def scroll_to_last_position(self):
         if self.z_indexes:
