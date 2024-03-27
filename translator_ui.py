@@ -42,11 +42,18 @@ class TranslatorApp(tk.Tk):
     def setup_fonts(self):
         # Set font and size for all widgets
         self.ratio = self.winfo_screenheight() / 720
-        self.saved_font = utils.load_config("app_font")
-        self.available_fonts = font.families()
 
-        if self.saved_font not in self.available_fonts:
-            self.saved_font = self.option_get("font", "TkDefaultFont")
+        self.saved_font_name = utils.load_config("app_font_name")
+        self.available_font_names = font.families()
+
+        if self.saved_font_name not in self.available_font_names:
+            self.saved_font_name = self.option_get("font", "TkDefaultFont")
+
+        self.saved_font_size = utils.load_config("app_font_size")
+        self.available_font_sizes = utils.generate_percent(50, 200, 10)
+
+        if self.saved_font_size not in self.available_font_sizes:
+            self.saved_font_size = "100%"
 
     def setup_gui(self):
         # Frame container
@@ -104,8 +111,10 @@ class TranslatorApp(tk.Tk):
 
         # Create a combobox to choose font inside frame row 2
         self.font_label = ttkb.Label(self.frame_row2, text="Font:")
-        self.font_combobox = ttkb.Combobox(self.frame_row2, values=sorted(self.available_fonts))
-        self.font_combobox.current(self.font_combobox["values"].index(self.saved_font)) if self.saved_font in self.font_combobox["values"] else None
+        self.font_name_combobox = ttkb.Combobox(self.frame_row2, values=sorted(self.available_font_names))
+        self.font_name_combobox.current(self.font_name_combobox["values"].index(self.saved_font_name)) if self.saved_font_name in self.font_name_combobox["values"] else None
+        self.font_size_combobox = ttkb.Combobox(self.frame_row2, values=self.available_font_sizes)
+        self.font_size_combobox.current(self.font_size_combobox["values"].index(self.saved_font_size)) if self.saved_font_size in self.font_size_combobox["values"] else None
 
         # Setup layout
         self.highlighted_textbox.pack(fill=tk.BOTH, padx=(10, 5), pady=(10, 5))
@@ -123,10 +132,11 @@ class TranslatorApp(tk.Tk):
         self.theme_combobox.pack(side=tk.RIGHT, padx=(5, 10), pady=(5, 10))
         self.theme_label.pack(side=tk.RIGHT, padx=(5, 5), pady=(5, 10))
 
-        self.font_combobox.pack(side=tk.RIGHT, padx=(5, 5), pady=(5, 10))
+        self.font_size_combobox.pack(side=tk.RIGHT, padx=(5, 5), pady=(5, 10))
+        self.font_name_combobox.pack(side=tk.RIGHT, padx=(5, 5), pady=(5, 10))
         self.font_label.pack(side=tk.RIGHT, padx=(5, 5), pady=(5, 10))
 
-        self.font_use(self.saved_font)
+        self.font_use(self.saved_font_name, self.saved_font_size)
 
     def setup_bindings(self):
         # Bindings for keyboard shortcuts, tab switching, etc.
@@ -135,7 +145,8 @@ class TranslatorApp(tk.Tk):
         self.hanviet_textbox.bind("<<Selection>>", lambda event: self.update_highlighted_text(event, self.hanviet_textbox, "hanviet"))    
         self.vietnamese_textbox.bind("<<Selection>>", lambda event: self.update_highlighted_text(event, self.vietnamese_textbox, "vietnamese"))    
         self.theme_combobox.bind("<<ComboboxSelected>>", self.change_theme)
-        self.font_combobox.bind("<<ComboboxSelected>>", self.change_font)
+        self.font_name_combobox.bind("<<ComboboxSelected>>", self.change_font_name)
+        self.font_size_combobox.bind("<<ComboboxSelected>>", self.change_font_size)
 
         # Bind right-click event to each textbox to display context menu
         self.chinese_textbox.bind("<Button-3>", lambda event: self.show_context_menu(event, self.chinese_textbox))
@@ -150,25 +161,33 @@ class TranslatorApp(tk.Tk):
         self.style.theme_use(selected_theme)
         utils.save_config("ttkb_theme", selected_theme)
 
-    def change_font(self, event):
-        selected_font = self.font_combobox.get()
-        self.font_use(selected_font)
-        utils.save_config("app_font", selected_font)
+    def change_font_name(self, event):
+        selected_font_name = self.font_name_combobox.get()
+        selected_font_size = self.font_size_combobox.get()
+        self.font_use(selected_font_name, selected_font_size)
+        utils.save_config("app_font_name", selected_font_name)
 
-    def font_use(self, font_family):
-        self.style.configure('.', font=(font_family, int(9 * self.ratio)))
+    def change_font_size(self, event):
+        selected_font_name = self.font_name_combobox.get()
+        selected_font_size = self.font_size_combobox.get()
+        self.font_use(selected_font_name, selected_font_size)
+        utils.save_config("app_font_size", selected_font_size)
+
+    def font_use(self, font_name, font_size_string):
+        font_size = utils.percent_to_float(font_size_string)
+        self.style.configure('.', font=(font_name, int(font_size * 9 * self.ratio)))
 
         # Create a Font object with the desired font settings
-        custom_font = font.Font(family=font_family, size=int(9 * self.ratio))
+        custom_font = font.Font(family=font_name, size=int(font_size * 9 * self.ratio))
 
         # Get the font metrics using the Font object
         font_height = custom_font.metrics("linespace")
         
         self.style.configure("Treeview", rowheight=font_height)
 
-        main_textbox_font = (font_family, int(12 * self.ratio))
-        sub_textbox_font = (font_family, int(9 * self.ratio))
-        combobox_font = (font_family, int(9 * self.ratio))
+        main_textbox_font = (font_name, int(font_size * 12 * self.ratio))
+        sub_textbox_font = (font_name, int(font_size * 9 * self.ratio))
+        combobox_font = (font_name, int(font_size * 9 * self.ratio))
 
         self.highlighted_textbox.config(font=sub_textbox_font)
         self.meaning_textbox.config(font=sub_textbox_font)
@@ -178,7 +197,8 @@ class TranslatorApp(tk.Tk):
         self.vietnamese_textbox.config(font=main_textbox_font)
 
         self.theme_combobox.config(font=combobox_font)
-        self.font_combobox.config(font=combobox_font)
+        self.font_size_combobox.config(font=combobox_font)
+        self.font_name_combobox.config(font=combobox_font)
 
     def show_context_menu(self, event, textbox):
         # Create a context menu

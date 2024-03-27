@@ -3,6 +3,7 @@ import ttkbootstrap as ttkb
 import csv
 import tkinter.simpledialog
 import translator as tr
+import utils
 from translator_ui import TranslatorApp as trapp
 
 class DataUpdate(tk.Toplevel):
@@ -12,7 +13,8 @@ class DataUpdate(tk.Toplevel):
         self.title(f"Update data for highlighted text")
         self.resizable(False, False)  # Disable resizing
 
-        self.font_family = parent.font_combobox.get()
+        self.font_name = parent.font_name_combobox.get()
+        self.font_size = utils.percent_to_float(parent.font_size_combobox.get())
         self.ratio = parent.ratio
 
         self.parent = parent
@@ -72,8 +74,8 @@ class DataUpdate(tk.Toplevel):
         self.delete_button.pack(side="right", padx=10, pady=(5,10))
 
     def setup_fonts(self):
-        combobox_font = (self.font_family, int(9 * self.ratio))
-        entry_font = (self.font_family, int(9 * self.ratio))
+        combobox_font = (self.font_name, int(self.font_size * 9 * self.ratio))
+        entry_font = (self.font_name, int(self.font_size * 9 * self.ratio))
 
         self.data_type_combobox.config(font=combobox_font)
         self.chinese_entry.config(font=entry_font)
@@ -118,7 +120,7 @@ class DataUpdate(tk.Toplevel):
         for i, item_name in enumerate(self.data_items):
             style = "success" if i == 0 else "light"
             entry = ttkb.Entry(self.items_frame, bootstyle=style, width=70)
-            entry.config(font=(self.font_family, int(9 * self.ratio)))
+            entry.config(font=(self.font_name, int(self.font_size * 9 * self.ratio)))
             entry.insert(0, item_name)
             entry.grid(row=i, column=0, sticky="ew", padx=(10,1), pady=5)
             entry.bind("<KeyRelease>", lambda event, index=i, entry=entry: self.update_item(index, entry))  # Bind an event to update data_items

@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import ttkbootstrap as ttkb
 import translator
+import utils
 import re
 
 class DataTables(tk.Toplevel):
@@ -11,7 +12,8 @@ class DataTables(tk.Toplevel):
         self.title("Data Tables")
         self.wm_state('zoomed')
 
-        self.font_family = parent.font_combobox.get()
+        self.font_name = parent.font_name_combobox.get()
+        self.font_size = utils.percent_to_float(parent.font_size_combobox.get())
         self.ratio = parent.ratio
 
         self.setup_gui()
@@ -62,8 +64,8 @@ class DataTables(tk.Toplevel):
         self.data_tree.configure(xscrollcommand=h_scrollbar.set)
 
     def setup_fonts(self):
-        combobox_font = (self.font_family, int(9 * self.ratio))
-        entry_font = (self.font_family, int(9 * self.ratio))
+        combobox_font = (self.font_name, int(self.font_size * 9 * self.ratio))
+        entry_font = (self.font_name, int(self.font_size * 9 * self.ratio))
         
         self.data_combobox.config(font=combobox_font)
         self.search_entry.config(font=entry_font)

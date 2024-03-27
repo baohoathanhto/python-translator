@@ -61,3 +61,14 @@ def load_config(key, config_file_path=CONFIG_FILE_PATH):
     except Exception as e:
         print("Error loading config:", e)
         return "default"
+
+def generate_percent(_min, _max, step):
+    values = []
+    for i in range(_min, _max + 1, step):
+        values.append(str(i) + '%')
+    return values
+
+def percent_to_float(percent_str):
+    # Remove '%' character from the string and convert it to float
+    percent_float = float(percent_str.rstrip('%')) / 100
+    return percent_float
