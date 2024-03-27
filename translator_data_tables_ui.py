@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import ttkbootstrap as ttkb
 import translator
+import re
 
 class DataTables(tk.Toplevel):
     def __init__(self, parent):
@@ -10,7 +11,11 @@ class DataTables(tk.Toplevel):
         self.title("Data Tables")
         self.wm_state('zoomed')
 
+        self.font_family = parent.font_combobox.get()
+        self.ratio = parent.ratio
+
         self.setup_gui()
+        self.setup_fonts()
 
         self.data_search = translator.z_data_search.get_data()
         self.data_means = translator.z_data_means.get_data()
@@ -35,7 +40,7 @@ class DataTables(tk.Toplevel):
         self.search_button = ttk.Button(frame_row1, text="Search", command=self.search_data)
         self.search_button.pack(side=tk.RIGHT, padx=5)
 
-        self.search_entry = ttk.Entry(frame_row1)
+        self.search_entry = ttk.Entry(frame_row1, width=70)
         self.search_entry.pack(side=tk.RIGHT)
 
         # Frame for row 2
@@ -56,6 +61,24 @@ class DataTables(tk.Toplevel):
         h_scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
         self.data_tree.configure(xscrollcommand=h_scrollbar.set)
 
+    def setup_fonts(self):
+        combobox_font = (self.font_family, int(9 * self.ratio))
+        entry_font = (self.font_family, int(9 * self.ratio))
+        
+        self.data_combobox.config(font=combobox_font)
+        self.search_entry.config(font=entry_font)
+
+    def get_font_info(self, style_name):
+        font_option = ttkb.Style().lookup(style_name, "font")
+        if font_option:
+            # Use regular expression to extract font family name and font size
+            match = re.match(r'^\{?(.*?)\}?\s+(\d+)$', font_option)
+            if match:
+                font_family = match.group(1)
+                font_size = match.group(2)
+                return font_family, font_size
+        return None, None
+
     def create_table(self, data_tree, data):
         # Clear existing columns and items in the Treeview
         data_tree['columns'] = data[0].keys() if data else []
@@ -74,7 +97,10 @@ class DataTables(tk.Toplevel):
             data_tree.insert("", tk.END, values=values)
 
         # Get the maximum width of text in each column
-        tree_font = tk.font.Font(family="Arial", size=10)
+        font_family, font_size = self.get_font_info("Treeview")
+        tree_font = tk.font.Font(family=font_family, size=font_size)
+        # print(f"font_family: {font_family}, font_size: {font_size}")
+
         max_widths = {}
         for header in headers:
             # Initialize the maximum width and index with the length of the header string and -1 respectively

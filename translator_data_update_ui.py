@@ -12,6 +12,9 @@ class DataUpdate(tk.Toplevel):
         self.title(f"Update data for highlighted text")
         self.resizable(False, False)  # Disable resizing
 
+        self.font_family = parent.font_combobox.get()
+        self.ratio = parent.ratio
+
         self.parent = parent
         self.text_trung = selected_text
         self.text_trung_backup = self.text_trung
@@ -19,10 +22,13 @@ class DataUpdate(tk.Toplevel):
         self.data_list = tr.z_data_search_update.get_data_update_list(self.text_trung)
         self.data_items_ids = [] # List to store ID & ROOT_ID of the current items
         self.data_items = []  # List to store data items separate by "/"
-        self.create_widgets()
+        
+        self.setup_gui()
+        self.setup_fonts()
+
         self.load_data_items()  # Load data from CSV when the app starts
 
-    def create_widgets(self):
+    def setup_gui(self):
         self.top_frame = ttkb.Frame(self)
         self.top_frame.pack(side="top", fill="both", expand=True)
 
@@ -33,9 +39,9 @@ class DataUpdate(tk.Toplevel):
             self.data_type_combobox.set(tr.data_type_update[tr.DATA_TYPE_WORDS])
         self.data_type_combobox.bind("<<ComboboxSelected>>", self.load_data_items)
 
-        self.chinese_entry = ttkb.Entry(self.top_frame, width=73)
-        self.hanviet_entry = ttkb.Entry(self.top_frame, width=73)
-        self.vietnamese_entry = ttkb.Entry(self.top_frame, width=73)
+        self.chinese_entry = ttkb.Entry(self.top_frame, width=70)
+        self.hanviet_entry = ttkb.Entry(self.top_frame, width=70)
+        self.vietnamese_entry = ttkb.Entry(self.top_frame, width=70)
 
         self.chinese_entry.insert(0, self.text_trung)
         self.hanviet_entry.insert(0, self.text_han)
@@ -64,6 +70,15 @@ class DataUpdate(tk.Toplevel):
 
         self.delete_button = ttkb.Button(self.bottom_frame, bootstyle="danger", text="Delete", command=self.delete_data_items)
         self.delete_button.pack(side="right", padx=10, pady=(5,10))
+
+    def setup_fonts(self):
+        combobox_font = (self.font_family, int(9 * self.ratio))
+        entry_font = (self.font_family, int(9 * self.ratio))
+
+        self.data_type_combobox.config(font=combobox_font)
+        self.chinese_entry.config(font=entry_font)
+        self.hanviet_entry.config(font=entry_font)
+        self.vietnamese_entry.config(font=entry_font)
 
     def reset_chinese_text(self):
         self.chinese_entry.delete(0, tk.END)
@@ -102,16 +117,17 @@ class DataUpdate(tk.Toplevel):
         # Recreate items from the updated list
         for i, item_name in enumerate(self.data_items):
             style = "success" if i == 0 else "light"
-            entry = ttkb.Entry(self.items_frame, bootstyle=style, width=60)
+            entry = ttkb.Entry(self.items_frame, bootstyle=style, width=70)
+            entry.config(font=(self.font_family, int(9 * self.ratio)))
             entry.insert(0, item_name)
             entry.grid(row=i, column=0, sticky="ew", padx=(10,1), pady=5)
             entry.bind("<KeyRelease>", lambda event, index=i, entry=entry: self.update_item(index, entry))  # Bind an event to update data_items
 
             up_button = ttkb.Button(self.items_frame, text="↑", width=2, command=lambda index=i: self.move_item_up(index))
-            up_button.grid(row=i, column=1, sticky="n", padx=1, pady=5)
+            up_button.grid(row=i, column=1, sticky="e", padx=1, pady=5)
 
             down_button = ttkb.Button(self.items_frame, text="↓", width=2, command=lambda index=i: self.move_item_down(index))
-            down_button.grid(row=i, column=2, sticky="s", padx=1, pady=5)
+            down_button.grid(row=i, column=2, sticky="e", padx=1, pady=5)
 
             subtract_button = ttkb.Button(self.items_frame, bootstyle="danger", text="-", width=2, command=lambda index=i: self.delete_item(index))
             subtract_button.grid(row=i, column=3, sticky="e", padx=(1,10), pady=5)

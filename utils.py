@@ -38,30 +38,26 @@ def load_last_used_folders(config_file_path=CONFIG_FILE_PATH):
         print("Error loading config:", e)
     return input_folder, output_folder
 
-def save_theme(theme_key, theme_name, config_file_path=CONFIG_FILE_PATH):
+def save_config(key, name, config_file_path=CONFIG_FILE_PATH):
     try:
         # Load existing JSON data
         with open(config_file_path, "r") as config_file:
             config_data = json.load(config_file)
 
-        # Update the theme key
-        config_data[theme_key] = theme_name
+        # Update the key
+        config_data[key] = name
 
         with open(config_file_path, "w") as config_file:
             json.dump(config_data, config_file, indent=4)
     except Exception as e:
-        print("Error saving theme:", e)
+        print("Error saving config:", e)
 
-def load_theme(theme_key, config_file_path=CONFIG_FILE_PATH):
+def load_config(key, config_file_path=CONFIG_FILE_PATH):
     try:
         with open(config_file_path, "r") as config_file:
             config_data = json.load(config_file)
-            saved_theme = config_data.get(theme_key, "default")
-            return saved_theme
+            saved_config = config_data.get(key, "default")
+            return saved_config
     except Exception as e:
-        print("Error loading theme:", e)
+        print("Error loading config:", e)
         return "default"
-
-def load_config(config_file_path=CONFIG_FILE_PATH):
-    with open(config_file_path, "r") as config_file:
-        return json.load(config_file)
