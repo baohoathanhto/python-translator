@@ -32,9 +32,19 @@ class ZData:
                 replace_index_han = 0
 
             # Update viet index & get viet text
-            curr_string_viet = self.z_data[i]['VIET'].split('/')[0]
-            next_string_viet = self.z_data[i + 1]['VIET'].split('/')[0] if i + 1 < len(self.z_data) else ''
+            if self.z_data[i]['ID'] != -1:
+                curr_string_viet = self.z_data[i]['VIET'].split('/')[0]
+            else:
+                curr_string_viet = self.z_data[i]['VIET']
 
+            if i + 1 < len(self.z_data):
+                if self.z_data[i + 1]['ID'] != -1:
+                    next_string_viet = self.z_data[i + 1]['VIET'].split('/')[0]
+                else:
+                    next_string_viet = self.z_data[i + 1]['VIET']
+            else:
+                next_string_viet = ''
+            
             spacing_viet = get_spacing(curr_string_viet, next_string_viet)
             curr_string_viet += spacing_viet
 
@@ -572,6 +582,10 @@ def update_data_csv(data_type, data_ids, txt_trung, txt_viet):
             z_data_words.append([txt_trung, txt_viet, len(z_data_words)])
         save_data("zh_words.csv", z_data_words)
 
+def update_third_value(lst, start_index):
+    for i in range(start_index, len(lst)):
+        lst[i][2] = int(lst[i][2]) - 1
+
 def delete_data_csv(data_type, data_ids):
     global z_data_names_local
     global z_data_names2_local
@@ -591,18 +605,21 @@ def delete_data_csv(data_type, data_ids):
         if data_ids:
             z_data_names_local.pop(local_id)
             z_data_names.pop(global_id)
+            update_third_value(z_data_names_local, local_id)
             save_data("zh_names.csv", z_data_names)
 
     elif data_type == DATA_TYPE_NAMES2:
         if data_ids:
             z_data_names2_local.pop(local_id)
             z_data_names2.pop(global_id)
+            update_third_value(z_data_names2_local, local_id)
             save_data("zh_names2.csv", z_data_names2)
 
     elif data_type == DATA_TYPE_WORDS:
         if data_ids:
             z_data_words_local.pop(local_id)
             z_data_words.pop(global_id)
+            update_third_value(z_data_words_local, local_id)
             save_data("zh_words.csv", z_data_words)
 
 def get_data_search(txt_trung):
