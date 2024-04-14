@@ -139,13 +139,18 @@ class ZData:
                     flag = 2
                     break
                 else:
-                    if self.z_data[j]['TYPE'] >= self.z_data[i]['TYPE']:
+                    if self.z_data[j]['TRUNG'] == self.z_data[i]['TRUNG']:
+                        if self.z_data[j]['TYPE'] >= self.z_data[i]['TYPE']:
+                            count += 1
+                            flag = 1
+                            j += 1
+                        else:
+                            flag = 2
+                            break
+                    else:
                         count += 1
                         flag = 1
                         j += 1
-                    else:
-                        flag = 2
-                        break
             if flag == 1:
                 del self.z_data[start:start+count]
                 i += 1
