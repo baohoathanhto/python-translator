@@ -110,7 +110,7 @@ class Fetchtitles(tk.Tk):
                         self.z_titles.append({'href': href, 'text': text})
                         self.titles_tree.insert('', 'end', text=text)
         else:
-            print('Failed to retrieve data. Status code:', response.status_code)
+            print('Failed to retrieve titles. Status code:', response.status_code)
 
     def fetch_chapters(self, event):
         self.chapters_tree.delete(*self.chapters_tree.get_children())
@@ -143,7 +143,7 @@ class Fetchtitles(tk.Tk):
                                 self.z_chapters.append({'title_index': index, 'href': href, 'text': text})
                                 self.chapters_tree.insert('', 'end', text=text)
                 else:
-                    print('Failed to retrieve data. Status code:', response.status_code)
+                    print('Failed to retrieve chapters. Status code:', response.status_code)
 
                 break # Found title
 
@@ -184,7 +184,7 @@ class Fetchtitles(tk.Tk):
                     txt_han, txt_viet = translator.translate(text_content)
                     self.vietnamese_textbox.insert("1.0", txt_viet)
                 else:
-                    print('Failed to retrieve data. Status code:', response.status_code)
+                    print('Failed to retrieve content. Status code:', response.status_code)
 
                 break # Found chapter
 

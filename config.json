@@ -3,7 +3,7 @@
     "output_folder": "D:/Projects/Python/python-translator/data",
     "ttkb_theme": "superhero",
     "app_font_name": "Arial",
-    "app_font_size": "100%",
+    "app_font_size": "130%",
     "data_names": {
         "Names.txt": "zh_names.csv",
         "Names2.txt": "zh_names2.csv",
