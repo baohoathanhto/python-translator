@@ -4,7 +4,7 @@ import csv
 import tkinter.simpledialog
 import translator as tr
 import utils
-from translator_ui import TranslatorApp as trapp
+from translator_main import TranslatorApp as trapp
 
 class DataUpdate(tk.Toplevel):
     def __init__(self, parent, selected_text):
