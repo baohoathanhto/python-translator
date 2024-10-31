@@ -35,7 +35,7 @@ This is a graphical user interface (GUI) translator application that translates 
 
 To use the GUI translator, run the following command:
 ```bash
-   python translator_ui.py
+   python main.py
 ```
 
 1. Copy the text you want to translate from any sources (Word, Notepad, Browser,...).
