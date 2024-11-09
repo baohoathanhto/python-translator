@@ -4,13 +4,14 @@ import ttkbootstrap as ttkb
 import translator
 import utils
 import re
+import os, csv
 
 class DataTables(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
 
         self.title("Data Tables")
-        self.wm_state('zoomed')
+        self.geometry("{0}x{1}+0+0".format(self.winfo_screenwidth(), self.winfo_screenheight()))
 
         self.font_name = parent.font_name_combobox.get()
         self.font_size = utils.percent_to_float(parent.font_size_combobox.get())
@@ -24,6 +25,8 @@ class DataTables(tk.Toplevel):
         self.last_search_index = None
 
         self.create_table(self.data_tree, self.data_search)
+
+        self.data_export = utils.dict_get_first_value(utils.dict_remove_duplicates(self.data_search, 'TRUNG'), 'VIET')
 
     def setup_gui(self):
         # Frame for row 1
@@ -44,6 +47,10 @@ class DataTables(tk.Toplevel):
 
         self.search_entry = ttk.Entry(frame_row1, width=70)
         self.search_entry.pack(side=tk.RIGHT)
+
+        # Export button (from data to csv)
+        self.export_button = ttk.Button(frame_row1, text="Export", command=self.export_data)
+        self.show_export_button(True)
 
         # Frame for row 2
         frame_row2 = tk.Frame(self)
@@ -130,24 +137,34 @@ class DataTables(tk.Toplevel):
             data_tree.column(index, anchor=tk.W, width=max_width + 20) # Padding +20
 
     def change_data_type(self, event):
-        data_table = [{"ID": -1, "ROOT_ID": -1, "Chinese": "None", "Vietnamese": "None"}]
+        # By default, hide the Export button
+        self.show_export_button(False)
+
+        data_table = [{"ID": -1, "ROOT_ID": -1, "TRUNG": "None", "VIET": "None"}]
         data_type = self.data_combobox.get()
+
         if data_type == "Data search":
             data_table = self.data_search
+            self.show_export_button(True)
         elif data_type == "Data meaning":
             data_table = self.data_means
         elif data_type == "Data name" and translator.z_data_names_local:
-            data_table = [{"ID": index, "ROOT_ID": line[2], "Chinese": line[0], "Vietnamese": line[1]} for index, line in enumerate(translator.z_data_names_local)]
+            data_table = [{"ID": index, "ROOT_ID": line[2], "TRUNG": line[0], "VIET": line[1]} for index, line in enumerate(translator.z_data_names_local)]
+            self.show_export_button(True)
         elif data_type == "Data name 2" and translator.z_data_names2_local:
-            data_table = [{"ID": index, "ROOT_ID": line[2], "Chinese": line[0], "Vietnamese": line[1]} for index, line in enumerate(translator.z_data_names2_local)]
+            data_table = [{"ID": index, "ROOT_ID": line[2], "TRUNG": line[0], "VIET": line[1]} for index, line in enumerate(translator.z_data_names2_local)]
+            self.show_export_button(True)
         elif data_type == "Data words" and translator.z_data_words_local:
-            data_table = [{"ID": index, "ROOT_ID": line[2], "Chinese": line[0], "Vietnamese": line[1]} for index, line in enumerate(translator.z_data_words_local)]
+            data_table = [{"ID": index, "ROOT_ID": line[2], "TRUNG": line[0], "VIET": line[1]} for index, line in enumerate(translator.z_data_words_local)]
+            self.show_export_button(True)
         elif data_type == "Data dictionaries" and translator.z_data_dicts_local:
-            data_table = [{"ID": index, "ROOT_ID": line[2], "Chinese": line[0], "Vietnamese": line[1]} for index, line in enumerate(translator.z_data_dicts_local)]
+            data_table = [{"ID": index, "ROOT_ID": line[2], "TRUNG": line[0], "VIET": line[1]} for index, line in enumerate(translator.z_data_dicts_local)]
         else:
             pass
 
         self.create_table(self.data_tree, data_table)
+
+        self.data_export = utils.dict_get_first_value(utils.dict_remove_duplicates(data_table, 'TRUNG'), 'VIET')
 
     def search_data(self):
         query = self.search_entry.get().lower()
@@ -173,3 +190,45 @@ class DataTables(tk.Toplevel):
             
             self.data_tree.selection_remove(self.data_tree.selection())
             self.last_search_index = None
+
+    def show_export_button(self, show):
+        if show:
+            self.export_button.pack(side=tk.RIGHT, padx=5)  # Show the Export button
+        else:
+            self.export_button.pack_forget()  # Hide the Export button
+
+    def export_data(self):
+        # Get the data type to determine the file name
+        data_type = self.data_combobox.get()
+        
+        # Set the file name based on the data_type
+        if data_type == "Data search":
+            file_name = "search.csv"
+        elif data_type == "Data name":
+            file_name = "name.csv"
+        elif data_type == "Data name 2":
+            file_name = "name2.csv"
+        elif data_type == "Data words":
+            file_name = "words.csv"
+        else:
+            file_name = "export.csv"  # Default file name if no match
+
+        # Define the export folder path
+        export_folder = os.path.join(utils.SCRIPT_DIR, "export")
+        
+        # Create the export folder if it doesn't exist
+        if not os.path.exists(export_folder):
+            os.makedirs(export_folder)
+        
+        # Set the full path for the file
+        file_path = os.path.join(export_folder, file_name)
+        
+        # Open the CSV file in write mode
+        with open(file_path, mode='w', newline='', encoding='utf-8') as file:
+            writer = csv.writer(file)
+            
+            # Write the TRUNG and VIET values for each row
+            for row in self.data_export:
+                writer.writerow([f"{row['TRUNG']}={row['VIET']}"])
+        
+        print(f"Data exported successfully to {file_path}.")

@@ -13,7 +13,7 @@ class TranslatorApp(tk.Tk):
         super().__init__()
 
         self.title("Python Translator")
-        self.wm_state('zoomed')
+        self.wm_state('normal')
         self.bind("<F11>", self.toggle_fullscreen)
 
         self.setup_style()
@@ -153,6 +153,11 @@ class TranslatorApp(tk.Tk):
         self.hanviet_textbox.bind("<Button-3>", lambda event: self.show_context_menu(event, self.hanviet_textbox))
         self.vietnamese_textbox.bind("<Button-3>", lambda event: self.show_context_menu(event, self.vietnamese_textbox))
 
+        # Bind select all event to each textbox
+        self.chinese_textbox.bind("<Control-a>", self.select_all_and_copy)
+        self.hanviet_textbox.bind("<Control-a>", self.select_all_and_copy)
+        self.vietnamese_textbox.bind("<Control-a>", self.select_all_and_copy)
+
     def toggle_fullscreen(self, event=None):
         self.attributes("-fullscreen", not self.attributes("-fullscreen"))
 
@@ -201,12 +206,33 @@ class TranslatorApp(tk.Tk):
         self.font_name_combobox.config(font=combobox_font)
 
     def show_context_menu(self, event, textbox):
-        # Create a context menu
-        context_menu = tk.Menu(self, tearoff=0)
-        context_menu.add_command(label="Update data", command=lambda: self.show_data_update_ui())
-
+        # Destroy any existing context menu
+        self.hide_context_menu()
+        
+        # Create a new context menu
+        self.context_menu = tk.Menu(self, tearoff=0)
+        self.context_menu.add_command(label="Update data", command=lambda: self.show_data_update_ui())
+        
         # Display the context menu at the click location
-        context_menu.post(event.x_root, event.y_root)
+        self.context_menu.post(event.x_root, event.y_root)
+
+        # Bind left-click to close the context menu
+        self.bind_global_events()
+
+    def bind_global_events(self):
+        # Bind left-click on the whole window to hide the context menu
+        self.bind("<Button-1>", self.hide_context_menu)
+
+        # Bind the window's focus out event to hide the context menu when the window loses focus
+        self.bind("<FocusOut>", self.hide_context_menu)
+
+    def hide_context_menu(self, event=None):
+        if hasattr(self, "context_menu") and self.context_menu:
+            self.context_menu.unpost()
+            self.context_menu = None
+
+        # Unbind left-click after hiding the context menu
+        self.unbind("<Button-1>")
 
     def show_data_update_ui(self):
         data_update_window = translator_data_update_ui.DataUpdate(self, translator.convert_escape_characters(self.z_selected_text['chinese']))
@@ -215,6 +241,24 @@ class TranslatorApp(tk.Tk):
     def show_data_tables_ui(self):
         data_tables_window = translator_data_tables_ui.DataTables(self)
         data_tables_window.mainloop()
+
+    def select_all_and_copy(self, event):
+        # Get the widget that triggered the event (the currently focused widget)
+        widget = event.widget
+
+        # Check if the focused widget is a Text widget
+        if isinstance(widget, ttkb.Text):
+            # Select all the text in the Text widget
+            widget.tag_add("select_all", "1.0", "end")
+
+            # Get the selected text
+            selected_text = widget.get("1.0", "end")
+
+            # Use Tkinter's clipboard handling
+            self.clipboard_clear()
+            self.clipboard_append(selected_text)
+
+            return 'break'  # To prevent default behavior
 
     def set_selection(self, textbox, start_index, end_index, color="#3498db"):
         # Remove any existing tags named "selected"
@@ -289,15 +333,18 @@ class TranslatorApp(tk.Tk):
         return processed_text
 
     def process_clipboard(self):
+        clipboard_text = "Not found!"
+
         try:
             clipboard_text = pyperclip.paste()
             if clipboard_text:
                 clipboard_text = self.process_text(clipboard_text)
-                pyperclip.copy(clipboard_text)
             else:
-                print("Clipboard is empty.")
+                clipboard_text = "Clipboard is empty."
         except pyperclip.PyperclipException as e:
-            print("Error processing clipboard:", e)
+            clipboard_text = "Error processing clipboard: " + e
+
+        return clipboard_text
 
     def translate(self):
         # Set all textbox to normal before Translate
@@ -306,8 +353,7 @@ class TranslatorApp(tk.Tk):
         self.vietnamese_textbox.config(state="normal")
 
         # Get Chinese text from the clipboard
-        self.process_clipboard()
-        txt_trung = pyperclip.paste()
+        txt_trung = self.process_clipboard()
 
         # Call the translate_callback function with textboxes
         txt_han, txt_viet = translator.translate(txt_trung)

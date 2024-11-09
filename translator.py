@@ -14,7 +14,7 @@ class ZData:
     def get_data(self):
         return self.z_data
 
-    # Array: [{TYPE, TYPE_NAME, ID, T_INDEX, H_INDEX, V_INDEX, TRUNG, HAN, VIET}]
+    # Array: [{TYPE, TYPE_NAME, ID, ROOT_ID, LINE, T_INDEX, H_INDEX, V_INDEX, T_LEN, TRUNG, HAN, VIET}]
     def get_han_viet(self):
         if not self.z_data:
             return '', ''
@@ -73,7 +73,7 @@ class ZData:
                 data_list.append(data)
         return data_list
 
-    # Array: [{TYPE, TYPE_NAME, ID, T_INDEX, H_INDEX, V_INDEX, TRUNG, HAN, VIET}]
+    # Array: [{TYPE, TYPE_NAME, ID, ROOT_ID, LINE, T_INDEX, H_INDEX, V_INDEX, T_LEN, TRUNG, HAN, VIET}]
     def push_data(self, text_data, data_csv, data_type):
         lines = splitlines_keep_linebreak(text_data)
         for i in range(len(data_csv)):
@@ -88,7 +88,7 @@ class ZData:
                         index += 1
                 line_num += 1
     
-    # Array: [{TYPE, TYPE_NAME, ID, T_INDEX, H_INDEX, V_INDEX, TRUNG, HAN, VIET}]
+    # Array: [{TYPE, TYPE_NAME, ID, ROOT_ID, LINE, T_INDEX, H_INDEX, V_INDEX, T_LEN, TRUNG, HAN, VIET}]
     def push_other_chars(self, text_data, data_type):
         lines = splitlines_keep_linebreak(text_data)
         for line_num, line in enumerate(lines, start=1):
@@ -116,7 +116,7 @@ class ZData:
                 data.append((item['T_INDEX'], item['TRUNG']))
         return data
 
-    # Array: [{TYPE, TYPE_NAME, ID, T_INDEX, H_INDEX, V_INDEX, TRUNG, HAN, VIET}], sort array first, then clean duplicate
+    # Array: [{TYPE, TYPE_NAME, ID, ROOT_ID, LINE, T_INDEX, H_INDEX, V_INDEX, T_LEN, TRUNG, HAN, VIET}], sort array first, then clean duplicate
     def clean_duplicate(self):
         if not self.z_data:
             pass

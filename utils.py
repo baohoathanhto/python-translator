@@ -72,3 +72,21 @@ def percent_to_float(percent_str):
     # Remove '%' character from the string and convert it to float
     percent_float = float(percent_str.rstrip('%')) / 100
     return percent_float
+
+def dict_remove_duplicates(data, colname):
+    seen = set()
+    unique_data = []
+    
+    for row in data:
+        value = row[colname]  # Use the colname variable to get the value
+        if value not in seen:
+            unique_data.append(row)
+            seen.add(value)
+    
+    return unique_data
+
+def dict_get_first_value(data, colname, delimiter='/'):
+    for row in data:
+        # Split the colname value at the first delimiter and take the first part
+        row[colname] = row[colname].split(delimiter)[0]
+    return data
