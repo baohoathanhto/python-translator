@@ -3,7 +3,6 @@
 import csv
 import os
 import re
-import tkinter as tk
 from tkinter import messagebox
 
 class ZData:
@@ -377,7 +376,7 @@ def get_spacing(curr_string, next_string):
 
     # Check if curr_string is not empty
     if curr_string:
-        if curr_string[-1] in [' ', '“', '‘', '{', '[', '(', '<', '\n', '\r', '\t']:
+        if curr_string[-1] in [' ', '“', '‘', '{', '[', '(', '<', '\n', '\r', '\t', '/', '*']:
             spacing = ''
         else:
             spacing = ' '
@@ -385,7 +384,7 @@ def get_spacing(curr_string, next_string):
     # Check if next_string is not empty and spacing is already set to a space
     if next_string:
         if spacing == ' ':
-            if next_string[0] in [' ', ',', ';', ':', '.', '?', '!', '”', '’', '}', ']', ')', '>', '^', '\n', '\r', '\t']:
+            if next_string[0] in [' ', ',', ';', ':', '.', '?', '!', '”', '’', '}', ']', ')', '>', '^', '\n', '\r', '\t', '/', '*']:
                 spacing = ''
             else:
                 spacing = ' '
@@ -409,7 +408,14 @@ def clean_duplicate_array(data, index):
     return unique_data
         
 def to_sentence_case(text):
-    return re.sub(r'(^|[\n.?!:][ 　“”‘’\"\'{}[\]()<>]*)(\w)', lambda match: match.group().upper(), text, flags=re.UNICODE)
+    if text and text[0].islower():
+        text = text[0].upper() + text[1:]
+        
+    return re.sub(
+        r'(^|[\n.?!:～][ 　“”‘’\"\'{}[\]()<>/*]*)(\w)|(-\s+)(\w)', 
+        lambda match: match.group().upper() if match.group(1) or match.group(3) else match.group(), 
+        text, flags=re.UNICODE
+    )
 
 def replace_special_characters(input_string):
     # Mapping of special characters to their regular counterparts

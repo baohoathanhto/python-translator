@@ -1,12 +1,12 @@
 import tkinter as tk
-from tkinter import ttk, font
+from tkinter import font
 import ttkbootstrap as ttkb
 import translator
 import utils
 import translator_data_tables_ui
 import translator_data_update_ui
+import translator_word_counter_ui
 import pyperclip
-import re
 
 class TranslatorApp(tk.Tk):
     def __init__(self):
@@ -100,7 +100,8 @@ class TranslatorApp(tk.Tk):
         self.translate_button = ttkb.Button(self.frame_row2, text="Translate from clipboard", command=self.translate)
         self.quick_translate_button = ttkb.Button(self.frame_row2, bootstyle="success", text="Quick translate", command=self.quick_translate)
         self.data_ui_button = ttkb.Button(self.frame_row2, bootstyle="dark", text="Show data", command=self.show_data_tables_ui)
-
+        self.word_counter_button = ttkb.Button(self.frame_row2, bootstyle="dark", text="Word counter", command=self.show_word_counter_ui)
+        
         self.quick_translate_button.config(state=tk.DISABLED)
         self.data_ui_button.config(state=tk.DISABLED)
 
@@ -128,6 +129,7 @@ class TranslatorApp(tk.Tk):
         self.translate_button.pack(side=tk.LEFT, padx=(10, 5), pady=(5, 10))
         self.quick_translate_button.pack(side=tk.LEFT, padx=5, pady=(5, 10))
         self.data_ui_button.pack(side=tk.LEFT, padx=5, pady=(5, 10))
+        self.word_counter_button.pack(side=tk.LEFT, padx=5, pady=(5, 10))
         
         self.theme_combobox.pack(side=tk.RIGHT, padx=(5, 10), pady=(5, 10))
         self.theme_label.pack(side=tk.RIGHT, padx=(5, 5), pady=(5, 10))
@@ -242,6 +244,10 @@ class TranslatorApp(tk.Tk):
         data_tables_window = translator_data_tables_ui.DataTables(self)
         data_tables_window.mainloop()
 
+    def show_word_counter_ui(self):
+        word_counter_window = translator_word_counter_ui.WordCounter(self)
+        word_counter_window.mainloop()
+
     def select_all_and_copy(self, event):
         # Get the widget that triggered the event (the currently focused widget)
         widget = event.widget
@@ -328,8 +334,8 @@ class TranslatorApp(tk.Tk):
 
     def process_text(self, input_text):
         lines = input_text.splitlines()
-        cleaned_lines = [line for line in lines if line.strip()]
-        processed_text = '\n\n'.join(cleaned_lines)
+        cleaned_lines = [line for line in lines]
+        processed_text = '\n'.join(cleaned_lines)
         return processed_text
 
     def process_clipboard(self):

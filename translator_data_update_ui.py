@@ -1,10 +1,7 @@
 import tkinter as tk
 import ttkbootstrap as ttkb
-import csv
-import tkinter.simpledialog
 import translator as tr
 import utils
-from translator_main import TranslatorApp as trapp
 
 class DataUpdate(tk.Toplevel):
     def __init__(self, parent, selected_text):

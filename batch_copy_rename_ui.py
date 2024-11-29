@@ -1,5 +1,4 @@
 import os
-import json
 import tkinter as tk
 import ttkbootstrap as ttkb
 from tkinter import filedialog
