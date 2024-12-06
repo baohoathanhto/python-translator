@@ -18,12 +18,13 @@ class DataUpdate(tk.Toplevel):
         self.text_trung = selected_text
         self.text_trung_backup = self.text_trung
         self.text_han, self.text_viet = tr.quick_translate(self.text_trung, False)
-        self.data_list = tr.z_data_search_update.get_data_update_list(self.text_trung)
+        self.data_list = tr.z_data_means.get_data_update_list(self.text_trung)
         self.data_items_ids = [] # List to store ID & ROOT_ID of the current items
         self.data_items = []  # List to store data items separate by "/"
         
         self.setup_gui()
         self.setup_fonts()
+        self.setup_priority_check_button()
 
         self.load_data_items()  # Load data from CSV when the app starts
 
@@ -38,6 +39,10 @@ class DataUpdate(tk.Toplevel):
             self.data_type_combobox.set(tr.data_type_update[tr.DATA_TYPE_WORDS])
         self.data_type_combobox.bind("<<ComboboxSelected>>", self.load_data_items)
 
+        # Radio button for Priority
+        self.priority_var = tk.BooleanVar(value=False)
+        self.priority_check_button = ttkb.Checkbutton(self.top_frame, text="Words priority", variable=self.priority_var)
+
         self.chinese_entry = ttkb.Entry(self.top_frame, width=70)
         self.hanviet_entry = ttkb.Entry(self.top_frame, width=70)
         self.vietnamese_entry = ttkb.Entry(self.top_frame, width=70)
@@ -47,9 +52,11 @@ class DataUpdate(tk.Toplevel):
         self.vietnamese_entry.insert(0, self.text_viet)
         self.chinese_entry.bind("<KeyRelease>", self.chinese_changed)
 
-        self.data_type_combobox.grid(row=0, column=0, columnspan=2, sticky="w", padx=10, pady=(10,5))
+        self.data_type_combobox.grid(row=0, column=0, sticky="w", padx=10, pady=(10,5))
+        self.priority_check_button.grid(row=0, column=0, sticky="e", padx=10)
+
         self.chinese_entry.grid(row=1, column=0, sticky="w", padx=(10,1), pady=5)
-        self.hanviet_entry.grid(row=2, column=0, columnspan=2, sticky="w", padx=10, pady=5)
+        self.hanviet_entry.grid(row=2, column=0, sticky="w", padx=(10,1), pady=5)
         self.vietnamese_entry.grid(row=3, column=0, sticky="w", padx=(10,1), pady=5)
 
         self.items_frame = ttkb.Frame(self)
@@ -78,6 +85,12 @@ class DataUpdate(tk.Toplevel):
         self.chinese_entry.config(font=entry_font)
         self.hanviet_entry.config(font=entry_font)
         self.vietnamese_entry.config(font=entry_font)
+
+    def setup_priority_check_button(self):
+        if self.text_trung in tr.z_data_words_priority:
+            self.priority_var.set(True)  # Set the button to checked
+        else:
+            self.priority_var.set(False)  # Set it to unchecked
 
     def reset_chinese_text(self):
         self.chinese_entry.delete(0, tk.END)
@@ -152,6 +165,8 @@ class DataUpdate(tk.Toplevel):
         elif current_data_type == tr.data_type_update[tr.DATA_TYPE_WORDS]:
             tr.update_data_csv(tr.DATA_TYPE_WORDS, self.data_items_ids, self.text_trung, str_items)
 
+        self.update_words_priority()
+
         self.parent.quick_translate()
         self.destroy()
 
@@ -164,21 +179,20 @@ class DataUpdate(tk.Toplevel):
             tr.delete_data_csv(tr.DATA_TYPE_NAMES2, self.data_items_ids)
         elif current_data_type == tr.data_type_update[tr.DATA_TYPE_WORDS]:
             tr.delete_data_csv(tr.DATA_TYPE_WORDS, self.data_items_ids)
+            tr.delete_words_priority_csv(self.text_trung)
 
         self.parent.quick_translate()
         self.destroy()
 
+    def update_words_priority(self):
+        if self.priority_var.get():
+            tr.update_words_priority_csv(self.text_trung)
+        else:
+            tr.delete_words_priority_csv(self.text_trung)
+
     def load_data_items(self, event=None):
+        current_data_type = self.data_type_combobox.get()
         try:
-            current_data_type = self.data_type_combobox.get()
-            text_viet = self.text_viet
-            if current_data_type == tr.data_type_update[tr.DATA_TYPE_NAMES] or current_data_type == tr.data_type_update[tr.DATA_TYPE_NAMES2]:
-                text_viet = self.text_han.title()
-
-            self.vietnamese_entry.delete(0, tk.END)
-            self.vietnamese_entry.insert(0, text_viet)
-
-
             self.data_items_ids = []
             for item in self.data_list:
                 if item['TYPE_NAME'] == current_data_type:
@@ -191,10 +205,30 @@ class DataUpdate(tk.Toplevel):
         except Exception as e:
             print(f"An error occurred in load_data_items(): {e}")
             self.load_empty_list()  # Load default list if CSV file not found
+            
+        self.load_entry_text(current_data_type)
 
     def load_empty_list(self):
         self.data_items = []
         self.refresh_items()
+
+    def load_entry_text(self, data_type):
+        text_viet = self.text_viet
+
+        # Show or hide the Priority radio button
+        if data_type == tr.data_type_update[tr.DATA_TYPE_WORDS]:
+            if self.data_items:
+                text_viet = self.data_items[0]
+            else:
+                text_viet = self.text_han.lower()
+        else:                
+            if self.data_items:
+                text_viet = self.data_items[0]
+            else:
+                text_viet = self.text_han.title()
+
+        self.vietnamese_entry.delete(0, tk.END)
+        self.vietnamese_entry.insert(0, text_viet)
 
     def chinese_changed(self, event=None):
         self.text_trung = self.chinese_entry.get()
@@ -208,5 +242,5 @@ class DataUpdate(tk.Toplevel):
         self.vietnamese_entry.delete(0, tk.END)
         self.vietnamese_entry.insert(0, self.text_viet)
 
-        self.data_list = tr.z_data_search_update.get_data_update_list(self.text_trung)
+        self.data_list = tr.z_data_means.get_data_update_list(self.text_trung)
         self.load_data_items()

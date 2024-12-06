@@ -65,13 +65,6 @@ class ZData:
 
         return txt_han, txt_viet
 
-    def get_data_update_list(self, txt_trung):
-        data_list = []
-        for data in self.z_data:
-            if data['TRUNG'] == txt_trung and data['TYPE'] in data_type_update:
-                data_list.append(data)
-        return data_list
-
     # Array: [{TYPE, TYPE_NAME, ID, ROOT_ID, LINE, T_INDEX, H_INDEX, V_INDEX, T_LEN, TRUNG, HAN, VIET}]
     def push_data(self, text_data, data_csv, data_type):
         lines = splitlines_keep_linebreak(text_data)
@@ -139,13 +132,13 @@ class ZData:
                     break
                 else:
                     if self.z_data[j]['TRUNG'] == self.z_data[i]['TRUNG']:
-                        if self.z_data[j]['TYPE'] >= self.z_data[i]['TYPE']:
+                        if self.z_data[j]['TYPE'] < self.z_data[i]['TYPE'] or is_words_priority(self.z_data[i]['TRUNG']):
+                            flag = 2
+                            break
+                        else:
                             count += 1
                             flag = 1
                             j += 1
-                        else:
-                            flag = 2
-                            break
                     else:
                         count += 1
                         flag = 1
@@ -322,6 +315,12 @@ class ZDataMeans:
 
         return result
 
+    def get_data_update_list(self, txt_trung):
+        data_list = []
+        for data in self.z_data:
+            if data['TRUNG'] == txt_trung and data['TYPE'] in data_type_update:
+                data_list.append(data)
+        return data_list
 
 # End of class ZDataMeans
                 
@@ -370,6 +369,34 @@ def get_data_local(text, data_csv):
         if str_search in text:
             data_local.append(row)
     return data_local
+
+def get_data_words_priority(file_name):
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    data_dir = os.path.join(script_dir, "data")
+    file_path = os.path.join(data_dir, file_name)
+    
+    if os.path.isfile(file_path):
+        data = []
+        with open(file_path, mode="r", encoding="utf-8-sig") as file:
+            for line in file:
+                data.append(line.strip())
+        return data
+    else:
+        print(f"Error: File '{file_path}' not found.")
+        return []
+    
+def save_data_words_priority(file_name, data_csv):
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    data_dir = os.path.join(script_dir, "data")
+    file_path = os.path.join(data_dir, file_name)
+    
+    if os.path.isfile(file_path):
+        with open(file_path, mode="w", encoding="utf-8", newline='') as file:
+            for item in data_csv:
+                file.write(f"{item}\n")  # Write each item on a new line
+    else:
+        print(f"Error: File '{file_path}' not found.")
+        return []
 
 def get_spacing(curr_string, next_string):
     spacing = ''
@@ -542,6 +569,8 @@ z_data_dicts = get_data("zh_dicts.csv")
 z_data_means_lacviet = get_data("zh_means_lacviet.csv")
 z_data_means_thieuchu = get_data("zh_means_thieuchuu.csv")
 
+z_data_words_priority = get_data_words_priority("zh_words_priority.csv")
+
 z_data_names_local = []
 z_data_names2_local = []
 z_data_words_local = []
@@ -632,6 +661,27 @@ def delete_data_csv(data_type, data_ids):
             z_data_words.pop(global_id)
             update_third_value(z_data_words_local, local_id)
             save_data("zh_words.csv", z_data_words)
+
+def update_words_priority_csv(txt_trung):
+    global z_data_words_priority
+
+    if not is_words_priority(txt_trung):
+        z_data_words_priority.append(txt_trung)
+
+    save_data_words_priority("zh_words_priority.csv", z_data_words_priority)
+
+def delete_words_priority_csv(txt_trung):
+    global z_data_words_priority
+
+    if is_words_priority(txt_trung):
+        z_data_words_priority = [word for word in z_data_words_priority if word != txt_trung]
+
+    save_data_words_priority("zh_words_priority.csv", z_data_words_priority)
+
+def is_words_priority(txt_trung):
+    if txt_trung in z_data_words_priority:
+        return True
+    return False
 
 def get_data_search(txt_trung):
     # Initialize ZData
