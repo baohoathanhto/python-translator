@@ -215,13 +215,7 @@ class DataUpdate(tk.Toplevel):
     def load_entry_text(self, data_type):
         text_viet = self.text_viet
 
-        # Show or hide the Priority radio button
-        if data_type == tr.data_type_update[tr.DATA_TYPE_WORDS]:
-            if self.data_items:
-                text_viet = self.data_items[0]
-            else:
-                text_viet = self.text_han.lower()
-        else:                
+        if data_type == tr.data_type_update[tr.DATA_TYPE_NAMES] or data_type == tr.data_type_update[tr.DATA_TYPE_NAMES2]:
             if self.data_items:
                 text_viet = self.data_items[0]
             else:

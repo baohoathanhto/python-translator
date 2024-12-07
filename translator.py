@@ -577,7 +577,6 @@ z_data_words_local = []
 z_data_dicts_local = []
 
 z_data_search = ZData()
-z_data_search_update = ZData()
 z_data_means = ZDataMeans()
 
 def update_data_csv(data_type, data_ids, txt_trung, txt_viet):
@@ -754,7 +753,6 @@ def translate(txt_trung):
 # Quick translate function, only using local data from the previous translate
 def quick_translate(txt_trung, is_translate=True):
     global z_data_search
-    global z_data_search_update
     global z_data_means
 
     txt_han = ""
@@ -779,7 +777,6 @@ def quick_translate(txt_trung, is_translate=True):
         txt_han = to_sentence_case(txt_han)
         txt_viet = to_sentence_case(txt_viet)
     else:
-        z_data_search_update = data_search
         txt_han = txt_han.strip()
         txt_viet = txt_viet.strip()
 
