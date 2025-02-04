@@ -562,9 +562,10 @@ data_type_update = {
     DATA_TYPE_WORDS: "Words"
 }
 
-z_data_names = get_data("zh_names.csv")
-z_data_names2 = get_data("zh_names2.csv")
-z_data_words = get_data("zh_words.csv")
+z_data_names = []
+z_data_names2 = []
+z_data_words = []
+
 z_data_dicts = get_data("zh_dicts.csv")
 z_data_means_lacviet = get_data("zh_means_lacviet.csv")
 z_data_means_thieuchu = get_data("zh_means_thieuchuu.csv")
@@ -578,6 +579,15 @@ z_data_dicts_local = []
 
 z_data_search = ZData()
 z_data_means = ZDataMeans()
+
+def init_data():
+    global z_data_names
+    global z_data_names2
+    global z_data_words
+    
+    z_data_names = get_data("zh_names.csv")
+    z_data_names2 = get_data("zh_names2.csv")
+    z_data_words = get_data("zh_words.csv")
 
 def update_data_csv(data_type, data_ids, txt_trung, txt_viet):
     global z_data_names_local
@@ -728,6 +738,8 @@ def translate(txt_trung):
 
     txt_han = ""
     txt_viet = ""
+
+    init_data()
 
     try:
         # Check if Chinese text is not empty
